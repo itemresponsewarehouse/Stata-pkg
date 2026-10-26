@@ -1,0 +1,6 @@
+*.dta
+!tests/*.dta
+irw_smoke.log
+*.bib
+.DS_Store
+__pycache__/

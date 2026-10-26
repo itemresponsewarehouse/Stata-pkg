@@ -1,0 +1,43 @@
+name: package manifest
+
+# net install ships exactly what irw.pkg lists. A new .ado that nobody added to
+# the manifest installs fine from a checkout and is missing for every user.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every ado and help file is in irw.pkg
+        run: |
+          status=0
+          for f in *.ado *.sthlp; do
+            if ! grep -qx "f $f" irw.pkg; then
+              echo "::error file=irw.pkg::$f is not listed in irw.pkg"
+              status=1
+            fi
+          done
+          while read -r listed; do
+            if [ ! -f "$listed" ]; then
+              echo "::error file=irw.pkg::irw.pkg lists $listed, which does not exist"
+              status=1
+            fi
+          done < <(sed -n 's/^f //p' irw.pkg)
+          exit $status
+      - name: Every command has a help file
+        run: |
+          status=0
+          for f in irw_*.ado; do
+            h="${f%.ado}.sthlp"
+            if [ ! -f "$h" ]; then
+              echo "::error file=$f::no help file $h"
+              status=1
+            fi
+          done
+          exit $status

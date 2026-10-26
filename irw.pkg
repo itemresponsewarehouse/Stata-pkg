@@ -1,0 +1,47 @@
+v 3
+d irw: Stata access to the Item Response Warehouse
+d
+d The IRW is a corpus of several thousand item response datasets in one
+d long format. This package reads it over the warehouse public CSV
+d endpoint -- no Redivis account and no SDK -- and bridges the long format
+d to the wide one that irt and gsem expect.
+d
+d Requires: Stata 15
+d Distribution-Date: 20261026
+d
+d Author: Item Response Warehouse, Stanford University
+d Support: https://github.com/itemresponsewarehouse/Stata-pkg/issues
+d
+f irw_cache.ado
+f _irw_cachedir.ado
+f irw_cite.ado
+f _irw_clean.ado
+f _irw_dataset.ado
+f irw_describe.ado
+f irw_fetch.ado
+f _irw_get.ado
+f irw_info.ado
+f irw_itemtext.ado
+f _irw_json.ado
+f irw_long.ado
+f _irw_meta.ado
+f irw_metadata.ado
+f _irw_metatable.ado
+f irw_search.ado
+f _irw_shards.ado
+f _irw_tableinfo.ado
+f _irw_tagkeep.ado
+f irw_tags.ado
+f irw_wide.ado
+f irw_cache.sthlp
+f irw_cite.sthlp
+f irw_describe.sthlp
+f irw_fetch.sthlp
+f irw_info.sthlp
+f irw_itemtext.sthlp
+f irw_long.sthlp
+f irw_metadata.sthlp
+f irw_search.sthlp
+f irw.sthlp
+f irw_tags.sthlp
+f irw_wide.sthlp

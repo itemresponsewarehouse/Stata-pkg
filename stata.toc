@@ -1,0 +1,7 @@
+v 3
+d Item Response Warehouse
+d
+d Stata access to the Item Response Warehouse (IRW), a corpus of harmonised
+d item response datasets. https://itemresponsewarehouse.org
+d
+p irw   Stata access to the Item Response Warehouse

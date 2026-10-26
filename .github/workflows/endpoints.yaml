@@ -1,0 +1,25 @@
+name: endpoint contracts
+
+# The ado files cannot be tested here -- Stata needs a licence -- so CI pins the
+# Redivis behaviours they depend on instead. tests/smoke.do covers the rest, by
+# hand. A failure here usually means Redivis changed something, not that this
+# repository did.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "40 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the endpoints the package reads
+        run: python3 -I tests/test_endpoints.py
