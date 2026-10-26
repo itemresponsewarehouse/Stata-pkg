@@ -20,11 +20,17 @@ program define _irw_meta, rclass
 		capture confirm file `"`stamp'"'
 		if _rc == 0 {
 			tempname sh
-			file open `sh' using `"`stamp'"', read text
-			file read `sh' fetched
-			file close `sh'
-			local age = date("`c(current_date)'", "DMY") - date("`fetched'", "DMY")
-			if `age' >= 0 & `age' <= `maxage' local stale = 0
+			local fetched ""
+			capture {
+				file open `sh' using `"`stamp'"', read text
+				file read `sh' fetched
+				file close `sh'
+			}
+			capture file close `sh'
+			if "`fetched'" != "" {
+				local age = date("`c(current_date)'", "DMY") - date("`fetched'", "DMY")
+				if `age' < . & `age' >= 0 & `age' <= `maxage' local stale = 0
+			}
 		}
 	}
 

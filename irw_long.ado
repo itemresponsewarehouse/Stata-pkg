@@ -15,9 +15,13 @@ program define irw_long
 		exit 111
 	}
 
-	capture unab wide : `prefix'*
-	if _rc | "`wide'" == "" {
-		di as err "no variables named `prefix'*; name them with prefix()"
+	capture unab candidates : `prefix'*
+	local wide ""
+	foreach v of local candidates {
+		if ustrregexm("`v'", "^`prefix'[0-9]+$") local wide "`wide' `v'"
+	}
+	if `"`wide'"' == "" {
+		di as err "no variables named `prefix' followed by a number; name them with prefix()"
 		exit 111
 	}
 

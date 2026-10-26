@@ -1,6 +1,6 @@
 *! irw_search 0.1.0  26oct2026  Item Response Warehouse
 *! Find tables by metadata, without disturbing the data in memory.
-program define irw_search
+program define irw_search, rclass
 	version 15.0
 	syntax [, Name(string) VARiable(string) SOurce(string) ///
 		NResponses(numlist min=1 max=2) NParticipants(numlist min=1 max=2) ///
@@ -50,7 +50,11 @@ program define irw_search
 
 		if "`longitudinal'" != "" {
 			capture confirm variable longitudinal
-			if _rc == 0 quietly keep if longitudinal == "true" | longitudinal == "TRUE" | longitudinal == 1
+			if _rc == 0 {
+				capture confirm string variable longitudinal
+				if _rc == 0 quietly keep if inlist(lower(longitudinal), "true", "yes", "1")
+				else quietly keep if longitudinal == 1
+			}
 		}
 
 		* Tag filters live in a different irw_meta table, joined on table name.

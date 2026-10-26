@@ -15,10 +15,17 @@ program define _irw_shards, rclass
 	local list "item_response_warehouse"
 	forvalues k = 2/`maxshards' {
 		tempfile p
-		capture quietly copy ///
-			"https://redivis.com/api/v1/datasets/datapages.item_response_warehouse_`k'" ///
-			`"`p'"', replace
-		if _rc continue, break
+		local gone = 1
+		forvalues try = 1/2 {
+			capture quietly copy ///
+				"https://redivis.com/api/v1/datasets/datapages.item_response_warehouse_`k'" ///
+				`"`p'"', replace
+			if _rc == 0 {
+				local gone = 0
+				continue, break
+			}
+		}
+		if `gone' continue, break
 		local list "item_response_warehouse_`k' `list'"
 	}
 

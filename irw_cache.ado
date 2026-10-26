@@ -4,6 +4,8 @@ program define irw_cache, rclass
 	version 15.0
 	syntax [, CLEAR List ]
 
+	_irw_cachedir, subdir(meta)
+	_irw_cachedir, subdir(tables)
 	_irw_cachedir
 	local dir `"`r(dir)'"'
 	local sep "`r(sep)'"
@@ -12,7 +14,8 @@ program define irw_cache, rclass
 		local n = 0
 		foreach sub in meta tables {
 			foreach pat in "*.dta" "*.stamp" {
-				local these : dir `"`dir'`sep'`sub'"' files `"`pat'"'
+				local these ""
+				capture local these : dir `"`dir'`sep'`sub'"' files `"`pat'"'
 				foreach f of local these {
 					capture erase `"`dir'`sep'`sub'`sep'`f'"'
 					if _rc == 0 local n = `n' + 1
@@ -21,6 +24,7 @@ program define irw_cache, rclass
 		}
 		global IRW_SHARDS ""
 		di as txt as res `n' as txt " file" cond(`n' == 1, "", "s") " erased from " as res `"`dir'"'
+		return local dir `"`dir'"'
 		exit
 	}
 

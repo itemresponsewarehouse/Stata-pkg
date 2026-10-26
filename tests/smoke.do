@@ -27,7 +27,7 @@ log using irw_smoke, replace name(smoke) text
 di as txt "{hline 70}"
 di as txt "irw Stata package smoke test"
 di as txt "Stata " c(stata_version) " " c(flavor) " on " c(os) ", " c(current_date) " " c(current_time)
-di as txt "max variables: " c(max_k_theory)
+di as txt "max variables: " c(maxvar) " (flavour ceiling " c(max_k_theory) ")"
 di as txt "{hline 70}"
 
 *-----------------------------------------------------------------------
@@ -183,7 +183,7 @@ di as txt "  (skip if it takes more than a few minutes -- it is a big download)"
 capture noisily irw_fetch previc_bohn2023, clear columns(id item resp)
 if _rc == 0 {
 	capture noisily irw_wide
-	di as txt "  -> rc = " _rc " with " c(max_k_theory) " variables allowed"
+	di as txt "  -> rc = " _rc " with " c(maxvar) " variables allowed"
 }
 
 *-----------------------------------------------------------------------

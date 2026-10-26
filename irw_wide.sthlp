@@ -86,9 +86,11 @@ character set; warehouse item names are often neither. Hence the numbering, the 
 and {opt key()}.
 
 {pstd}
-{bf:There is a ceiling.} Stata/IC allows 2,048 variables, SE 32,767, MP 120,000. Plenty
-of IRW tables have more items than the smaller flavours can hold. {cmd:irw_wide} checks
-first and reports both numbers rather than failing part-way.
+{bf:There is a ceiling.} The binding limit is {cmd:c(maxvar)}, which is a setting, not
+the flavour's ceiling {c -} Stata/SE starts at 5,000 whatever {cmd:c(max_k_theory)}
+says. Plenty of IRW tables have more items than that. {cmd:irw_wide} checks against
+{cmd:c(maxvar)} first, reports both numbers, and points at {helpb set maxvar} rather
+than failing part-way through a reshape.
 
 {pstd}
 {bf:Speed.} {helpb reshape} is slow on large tables. If you have {cmd:gtools}

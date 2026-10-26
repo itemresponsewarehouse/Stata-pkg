@@ -23,6 +23,11 @@ program define irw_fetch
 	local ds "`r(dataset)'"
 
 	_irw_tableinfo, dataset("`ds'") table("`tbl'")
+	if r(found) == 0 {
+		di as err `"the catalogue puts "`tbl'" in datapages.`ds', but Redivis does not have it there"'
+		di as err "{p 4 4 2}The cached catalogue may be stale; try {bf:irw_cache, clear}.{p_end}"
+		exit 601
+	}
 	local hash   "`r(hash)'"
 	local qref   "`r(qref)'"
 	local nrows  = r(numrows)

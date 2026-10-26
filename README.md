@@ -74,8 +74,9 @@ bridge, and it handles the things that make a naive `reshape` fail or mislead:
 - `key()` writes the full crosswalk, which is the only way back to item names;
 - duplicate `id`–`item` pairs stop it rather than being silently collapsed — in the IRW
   they can be real data (repeated administrations, trial-level tables);
-- it checks the item count against this Stata's variable limit (IC 2,048, SE 32,767,
-  MP 120,000) and reports both numbers instead of failing part-way.
+- it checks the item count against `c(maxvar)` — the limit that actually binds, which
+  is a setting and not the flavour's ceiling — and points at `set maxvar` instead of
+  failing part-way through a reshape.
 
 ## Testing
 

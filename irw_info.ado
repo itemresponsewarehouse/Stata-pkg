@@ -8,8 +8,8 @@ program define irw_info
 
 	if `"`tbl'"' != "" {
 		irw_describe `tbl', source(`source')
-		capture irw_tags `tbl', source(`source')
-		capture irw_cite `tbl', source(`source')
+		capture noisily irw_tags `tbl', source(`source')
+		capture noisily irw_cite `tbl', source(`source')
 		exit
 	}
 

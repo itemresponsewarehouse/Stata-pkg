@@ -66,7 +66,8 @@ so a tag filter excludes untagged tables; an untagged table is not a non-match.
 
 {pstd}Feed the results to a loop:{p_end}
 {phang2}{cmd:. irw_search, nitems(10 20) ncategories(2 2) max(5)}{p_end}
-{phang2}{cmd:. foreach t of local r(tables) {c -(}}{p_end}
+{phang2}{cmd:. local hits "`r(tables)'"}{p_end}
+{phang2}{cmd:. foreach t of local hits {c -(}}{p_end}
 {phang2}{cmd:.         irw_fetch `t', clear}{p_end}
 {phang2}{cmd:. {c )-}}{p_end}
 

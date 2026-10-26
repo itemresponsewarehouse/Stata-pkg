@@ -14,7 +14,7 @@ program define _irw_json, rclass
 	file read `fh' %500s chunk
 	while r(eof) == 0 & `n' < `maxchars' {
 		local buf `"`buf'`chunk'"'
-		local n = `n' + 500
+		local n = `n' + length(`"`chunk'"')
 		file read `fh' %500s chunk
 	}
 	local buf `"`buf'`chunk'"'

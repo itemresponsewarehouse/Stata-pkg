@@ -32,10 +32,28 @@ program define irw_cite, rclass
 			local found = 1
 			foreach f in reference_x doi__for_paper_ doi__for_data_ url__for_data_ ///
 				original_license derived_license custom_license_terms description ///
-				source_via bibtex {
+				source_via {
 				capture confirm variable `f'
 				if _rc == 0 local `f' = `f'[1]
 				if `"``f''"' == "NA" local `f' ""
+			}
+
+			if `"`bibfile'"' != "" {
+				capture confirm file `"`bibfile'"'
+				if _rc == 0 & "`replace'" == "" {
+					di as err `"file `bibfile' already exists; specify replace"'
+					exit 602
+				}
+				capture confirm variable bibtex
+				if _rc == 0 {
+					quietly keep bibtex
+					quietly drop if missing(bibtex) | bibtex == "NA"
+				}
+				if _N > 0 {
+					quietly export delimited using `"`bibfile'"', ///
+						novarnames noquote delimiter(tab) replace
+					local wrotebib = 1
+				}
 			}
 		}
 	restore
@@ -62,20 +80,8 @@ program define irw_cite, rclass
 		" doi:10.3758/s13428-025-02796-y.{p_end}"
 
 	if `"`bibfile'"' != "" {
-		if `"`bibtex'"' == "" {
-			di as err "no BibTeX entry on file for `tbl'"
-			exit 601
-		}
-		capture confirm file `"`bibfile'"'
-		if _rc == 0 & "`replace'" == "" {
-			di as err `"file `bibfile' already exists; specify replace"'
-			exit 602
-		}
-		tempname fh
-		file open `fh' using `"`bibfile'"', write text replace
-		file write `fh' `"`macval(bibtex)'"' _n
-		file close `fh'
-		di as txt "BibTeX written to " as res `"`bibfile'"'
+		if "`wrotebib'" == "1" di as txt "BibTeX written to " as res `"`bibfile'"'
+		else di as err "no BibTeX entry on file for `tbl'"
 	}
 
 	return local reference `"`reference_x'"'
