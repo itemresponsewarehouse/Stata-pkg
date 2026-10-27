@@ -90,13 +90,24 @@ paging is ignored. Plain `unittest`, no dependencies, runs anywhere:
 python3 -I tests/test_endpoints.py
 ```
 
-`tests/smoke.do` runs the package end to end and asserts row and column counts at each
-step, including the error paths. It needs someone with a Stata licence. It is
-self-contained and downloads about 2 MB:
+`tests/unit.do` is the cheap middle, and the first thing to run after any edit: it
+exercises the helpers and the reshape against fixtures on disk, with no network and no
+account, in seconds. It exists because two review passes over this package each found a
+bug that was fatal on every table, and both would have shown up here immediately:
+
+```stata
+do tests/unit.do
+```
+
+`tests/smoke.do` runs the whole package against the live warehouse and asserts row and
+column counts at each step, including the error paths. It is self-contained and
+downloads about 2 MB:
 
 ```stata
 do tests/smoke.do
 ```
+
+Both need someone with a Stata licence.
 
 Please send back the whole `irw_smoke.log`, passes and failures both.
 

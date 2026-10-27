@@ -10,6 +10,7 @@ program define irw_search, rclass
 		Max(integer 50) LIst Force ]
 
 	if "`source'" == "" local source "core"
+	local source = lower("`source'")
 	_irw_metatable, source(`source')
 	local mt "`r(table)'"
 

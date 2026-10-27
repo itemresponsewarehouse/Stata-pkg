@@ -11,11 +11,11 @@ program define _irw_json, rclass
 	local buf ""
 	local n = 0
 	local chunk ""
-	file read `fh' %500s chunk
+	file read `fh' chunk
 	while r(eof) == 0 & `n' < `maxchars' {
 		local buf `"`buf'`chunk'"'
 		local n = `n' + length(`"`chunk'"')
-		file read `fh' %500s chunk
+		file read `fh' chunk
 	}
 	local buf `"`buf'`chunk'"'
 	file close `fh'

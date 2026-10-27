@@ -50,7 +50,16 @@ program define _irw_get, rclass
 		* copy cannot set an Authorization header, so curl is the only way in.
 		local q = char(34)
 		capture erase `"`file'"'
-		shell curl -sS -f -H `q'Authorization: Bearer `token'`q' `q'`url'`q' -o `q'`file'`q'
+		* Keep the token out of the process table: curl reads it from a config
+		* file rather than from argv, where any user on the box could see it.
+		tempfile curlrc
+		tempname cfg
+		file open `cfg' using `"`curlrc'"', write text replace
+		file write `cfg' `"header = "Authorization: Bearer `token'""' _n
+		file write `cfg' `"silent"' _n `"show-error"' _n `"fail"' _n
+		file close `cfg'
+		shell curl -K `q'`curlrc'`q' `q'`url'`q' -o `q'`file'`q'
+		capture erase `"`curlrc'"'
 
 		* shell does not reliably return the child's exit status, and curl
 		* creates the output file before it makes the request, so judge the

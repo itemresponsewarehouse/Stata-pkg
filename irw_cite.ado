@@ -35,7 +35,7 @@ program define irw_cite, rclass
 				source_via {
 				capture confirm variable `f'
 				if _rc == 0 local `f' = `f'[1]
-				if `"``f''"' == "NA" local `f' ""
+				if inlist(`"``f''"', "NA", ".") local `f' ""
 			}
 
 			if `"`bibfile'"' != "" {
@@ -44,15 +44,15 @@ program define irw_cite, rclass
 					di as err `"file `bibfile' already exists; specify replace"'
 					exit 602
 				}
-				capture confirm variable bibtex
+				capture confirm string variable bibtex
 				if _rc == 0 {
 					quietly keep bibtex
 					quietly drop if missing(bibtex) | bibtex == "NA"
-				}
-				if _N > 0 {
-					quietly export delimited using `"`bibfile'"', ///
-						novarnames noquote delimiter(tab) replace
-					local wrotebib = 1
+					if _N > 0 {
+						quietly export delimited using `"`bibfile'"', ///
+							novarnames noquote delimiter(tab) replace
+						local wrotebib = 1
+					}
 				}
 			}
 		}
@@ -81,7 +81,10 @@ program define irw_cite, rclass
 
 	if `"`bibfile'"' != "" {
 		if "`wrotebib'" == "1" di as txt "BibTeX written to " as res `"`bibfile'"'
-		else di as err "no BibTeX entry on file for `tbl'"
+		else {
+			di as err "no BibTeX entry on file for `tbl'"
+			exit 601
+		}
 	}
 
 	return local reference `"`reference_x'"'

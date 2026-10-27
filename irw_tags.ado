@@ -28,7 +28,7 @@ program define irw_tags, rclass
 			foreach v of varlist _all {
 				if "`v'" == "table" continue
 				local val = `v'[1]
-				if `"`val'"' == "NA" | `"`val'"' == "" continue
+				if inlist(`"`val'"', "NA", ".", "") continue
 				local lab = subinstr("`v'", "_", " ", .)
 				di as txt "{p 0 26 2}`lab'" _col(26) as res `"`val'"' "{p_end}"
 			}

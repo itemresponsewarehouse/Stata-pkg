@@ -11,20 +11,18 @@ program define _irw_cachedir, rclass
 	if substr(`"`d'"', -1, 1) == "`sep'" {
 		local d = substr(`"`d'"', 1, length(`"`d'"') - 1)
 	}
-	capture mkdir `"`d'"'
-	capture local probe : dir `"`d'"' files "*"
-	if _rc {
-		* A nested IRW_CACHE_DIR needs its parents made one at a time.
-		local built ""
-		local rest `"`d'"'
-		if substr(`"`d'"', 1, 1) == "`sep'" local built "`sep'"
-		while `"`rest'"' != "" {
-			gettoken piece rest : rest, parse("`sep'")
-			if `"`piece'"' == "`sep'" continue
-			local built `"`built'`piece'"'
-			capture mkdir `"`built'"'
-			local built `"`built'`sep'"'
-		}
+	* mkdir does not create intermediate directories, so a nested IRW_CACHE_DIR
+	* needs its parents made one at a time. Every mkdir is captured and
+	* idempotent, so this is safe to run unconditionally on an existing tree.
+	local built ""
+	local rest `"`d'"'
+	if substr(`"`d'"', 1, 1) == "`sep'" local built "`sep'"
+	while `"`rest'"' != "" {
+		gettoken piece rest : rest, parse("`sep'")
+		if `"`piece'"' == "`sep'" continue
+		local built `"`built'`piece'"'
+		capture mkdir `"`built'"'
+		local built `"`built'`sep'"'
 	}
 
 	if `"`subdir'"' != "" {

@@ -36,7 +36,19 @@ program define _irw_meta, rclass
 
 	if `stale' {
 		tempfile csv
-		_irw_get, dataset(irw_meta) table(`table') file(`"`csv'"')
+		capture _irw_get, dataset(irw_meta) table(`table') file(`"`csv'"')
+		if _rc {
+			capture confirm file `"`dta'"'
+			if _rc == 0 {
+				di as txt "note: could not refresh the `table' catalogue; using the" ///
+					" cached copy from `fetched'"
+				return scalar stale = 0
+				return local path `"`dta'"'
+				exit
+			}
+			di as err "could not download the `table' catalogue, and no cached copy exists"
+			exit 601
+		}
 		* biblio carries BibTeX with embedded newlines inside quoted fields.
 		quietly import delimited using `"`csv'"', clear varnames(1) ///
 			bindquote(strict) maxquotedrows(200000) encoding(utf-8)

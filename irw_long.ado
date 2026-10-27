@@ -17,12 +17,23 @@ program define irw_long
 
 	capture unab candidates : `prefix'*
 	local wide ""
+	local stray ""
 	foreach v of local candidates {
 		if ustrregexm("`v'", "^`prefix'[0-9]+$") local wide "`wide' `v'"
+		else local stray "`stray' `v'"
 	}
 	if `"`wide'"' == "" {
 		di as err "no variables named `prefix' followed by a number; name them with prefix()"
 		exit 111
+	}
+	* reshape long claims every variable starting with the stub, not just the
+	* numbered ones, and dies on a non-numeric j. Say so rather than let it.
+	if `"`stray'"' != "" {
+		di as err "{p}these start with {bf:`prefix'} but do not end in a number, and" ///
+			" {bf:reshape long} would take them too:" as res "`stray'" as err "{p_end}"
+		di as err "{p 4 4 2}Drop or rename them, or choose a {bf:prefix()} that does not" ///
+			" match them.{p_end}"
+		exit 198
 	}
 
 	quietly reshape long `prefix', i(`id') j(_itemnum)
@@ -31,7 +42,8 @@ program define irw_long
 	quietly drop if missing(`resp')
 
 	if `"`key'"' != "" {
-		quietly merge m:1 _itemnum using `"`key'"', keepusing(`item') nogenerate
+		quietly merge m:1 _itemnum using `"`key'"', keepusing(`item') ///
+			keep(master match) nogenerate
 		quietly drop if missing(`item')
 	}
 	else {

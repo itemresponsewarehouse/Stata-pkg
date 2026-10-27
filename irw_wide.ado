@@ -57,8 +57,14 @@ program define irw_wide
 	if (`K' + 2) > `maxk' {
 		di as err "{p}this table has `K' items, and this Stata is set to allow `maxk'" ///
 			" variables, so the wide form will not fit.{p_end}"
-		di as err "{p 4 4 2}Raise it with {bf:set maxvar} (this flavour's ceiling is" ///
-			" " c(max_k_theory) "), or subset the items first.{p_end}"
+		if c(maxvar) >= c(max_k_theory) {
+			di as err "{p 4 4 2}This flavour of Stata cannot hold more, so use a larger" ///
+				" one or subset the items first.{p_end}"
+		}
+		else {
+			di as err "{p 4 4 2}Raise it with {bf:set maxvar} (this flavour's ceiling is" ///
+				" " c(max_k_theory) "), or subset the items first.{p_end}"
+		}
 		exit 1000
 	}
 
@@ -80,11 +86,12 @@ program define irw_wide
 		label variable _itemnum "item number"
 		label variable `item' "item identifier in the warehouse"
 		capture quietly save `"`key'"', `replace'
-		if _rc {
+		local saverc = _rc
+		if `saverc' {
 			quietly use `"`beforekey'"', clear
 			di as err `"could not write the key to `key'"'
 			di as err "{p 4 4 2}If it already exists, specify {bf:replace}.{p_end}"
-			exit _rc
+			exit `saverc'
 		}
 		quietly use `"`beforekey'"', clear
 		di as txt "item key written to " as res `"`key'"'
@@ -99,12 +106,16 @@ program define irw_wide
 	forvalues k = 1/`K' {
 		capture confirm variable `resp'`k'
 		if _rc continue
+		local target `prefix'`k'
 		if "`prefix'" != "`resp'" {
 			capture confirm variable `prefix'`k'
 			if _rc rename `resp'`k' `prefix'`k'
-			else di as txt "note: `prefix'`k' already exists; left `resp'`k' as it was"
+			else {
+				di as txt "note: `prefix'`k' already exists; left `resp'`k' as it was"
+				local target `resp'`k'
+			}
 		}
-		capture label variable `prefix'`k' `"`lab`k''"'
+		capture label variable `target' `"`lab`k''"'
 	}
 
 	di as txt ""
