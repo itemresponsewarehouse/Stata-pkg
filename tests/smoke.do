@@ -100,8 +100,9 @@ if _rc {
 	local failures = `failures' + 1
 }
 else {
-	quietly describe resp*
-	di as txt "wide: " _N " respondents, " r(k) " item variables"
+	capture unab rv : resp*
+	local nrv : word count `rv'
+	di as txt "wide: " _N " respondents, `nrv' item variables"
 	if _N == 0 {
 		di as err "FAIL: no rows after reshape"
 		local failures = `failures' + 1
@@ -178,12 +179,23 @@ if _rc == 0 {
 }
 else di as txt "  -> refused with rc = " _rc ", as intended"
 
-di as txt _n "== 9c. more items than this Stata can hold"
-di as txt "  (skip if it takes more than a few minutes -- it is a big download)"
+di as txt _n "== 9c. a wider table, reshaped for real"
+di as txt "  (a few hundred items; the variable-limit refusal itself is covered"
+di as txt "   offline in unit.do, which lowers maxvar to reach it)"
 capture noisily irw_fetch previc_bohn2023, clear columns(id item resp)
-if _rc == 0 {
+if _rc {
+	local failures = `failures' + 1
+}
+else {
 	capture noisily irw_wide
-	di as txt "  -> rc = " _rc " with " c(maxvar) " variables allowed"
+	if _rc {
+		di as err "FAIL: a 379-item table should reshape under maxvar = " c(maxvar)
+		local failures = `failures' + 1
+	}
+	else {
+		capture unab rv : resp*
+		di as txt "  -> " _N " respondents by `: word count `rv'' items"
+	}
 }
 
 *-----------------------------------------------------------------------

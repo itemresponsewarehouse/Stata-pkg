@@ -13,21 +13,22 @@ program define _irw_json, rclass
 	local chunk ""
 	file read `fh' chunk
 	while r(eof) == 0 & `n' < `maxchars' {
-		local buf `"`buf'`chunk'"'
-		local n = `n' + length(`"`chunk'"')
+		local buf `"`macval(buf)'`macval(chunk)'"'
+		local n = length(`"`macval(buf)'"')
 		file read `fh' chunk
 	}
-	local buf `"`buf'`chunk'"'
+	local buf `"`macval(buf)'`macval(chunk)'"'
 	file close `fh'
 
+	* \s* because JSON may be pretty-printed: "status": 404.
 	if "`string'" != "" {
-		local pat `"`q'`key'`q':`q'([^`q']*)`q'"'
+		local pat `"`q'`key'`q':\s*`q'([^`q']*)`q'"'
 	}
 	else {
-		local pat `"`q'`key'`q':(-?[0-9][0-9.eE+-]*)"'
+		local pat `"`q'`key'`q':\s*(-?[0-9][0-9.eE+-]*)"'
 	}
 
-	if ustrregexm(`"`buf'"', `"`pat'"') {
+	if ustrregexm(`"`macval(buf)'"', `"`pat'"') {
 		return local value `"`=ustrregexs(1)'"'
 		return scalar found = 1
 	}

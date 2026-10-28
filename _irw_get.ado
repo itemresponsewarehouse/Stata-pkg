@@ -72,15 +72,15 @@ program define _irw_get, rclass
 			file close `ch'
 		}
 		capture file close `ch'
-		if `"`head'"' == "" {
+		if `"`macval(head)'"' == "" {
 			di as err "the authenticated download of `table' produced nothing"
 			di as err "{p 4 4 2}Check that {bf:curl} is installed and that the token is a" ///
 				" valid Redivis API token with read access.{p_end}"
 			exit 672
 		}
-		if strpos(`"`head'"', `""error""') > 0 {
+		if strpos(`"`macval(head)'"', `""error""') > 0 {
 			di as err "Redivis refused the authenticated request for `table':"
-			di as err `"{p 4 4 2}`head'{p_end}"'
+			di as err `"{p 4 4 2}`macval(head)'{p_end}"'
 			exit 672
 		}
 	}

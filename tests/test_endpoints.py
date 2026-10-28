@@ -10,6 +10,7 @@ Everything here runs anonymously, on purpose: that is the whole premise.
 
 import csv
 import io
+import re
 import json
 import unittest
 import urllib.error
@@ -171,6 +172,40 @@ class TestMetaTables(unittest.TestCase):
                 header = next(csv.reader(io.StringIO(body.decode("utf-8"))))
                 for c in cols:
                     self.assertIn(c, header)
+
+    def test_properties_json_survives_stata_macro_expansion(self):
+        """irw_meta.tags broke _irw_json, and this is why.
+
+        Redivis returns each table's own description inside the properties
+        JSON, and tags's description quotes column names in backticks --
+        `age range`, `measurement tool`. _irw_json builds its buffer in a
+        Stata local, and a bare `local buf "`buf'`chunk'"' expands those as
+        macro references, which aborted with r(198) and took irw_tags down
+        with it. The fix is macval(); this test fails loudly if anyone
+        removes it, by asserting the hazard is still present upstream.
+        """
+        _, body = get(f"{API}/tables/{ORG}.irw_meta.tags")
+        text = body.decode("utf-8")
+        self.assertIn("`", text, "the hazard macval() guards against")
+
+        # And the patterns _irw_json uses must still find every key it reads
+        # in a body that contains them.
+        num = r'"%s":\s*(-?[0-9][0-9.eE+-]*)'
+        string = r'"%s":\s*"([^"]*)"'
+        for key in ("numRows", "numBytes", "variableCount"):
+            self.assertIsNotNone(re.search(num % key, text), key)
+        for key in ("hash", "qualifiedReference"):
+            self.assertIsNotNone(re.search(string % key, text), key)
+
+    def test_patterns_tolerate_pretty_printed_json(self):
+        # A 404 body is pretty-printed, with a space after the colon. The
+        # patterns demanded the value immediately after it and so returned
+        # nothing; \s* is what fixed that.
+        status, body = get(table_url(SMALL_SHARD, "not_a_real_table_zzz"))
+        self.assertEqual(status, 404)
+        text = body.decode("utf-8")
+        self.assertRegex(text, r'"status":\s*(-?[0-9][0-9.eE+-]*)')
+        self.assertRegex(text, r'"error":\s*"([^"]*)"')
 
     def test_itemtext_table_naming(self):
         # irw_itemtext appends __items to the table name.
