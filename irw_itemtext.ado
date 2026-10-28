@@ -1,4 +1,4 @@
-*! irw_itemtext 0.1.0  26oct2026  Item Response Warehouse
+*! irw_itemtext 0.1.1  28oct2026  Item Response Warehouse
 *! Load the item wording that ships with one IRW table.
 program define irw_itemtext
 	version 15.0
@@ -23,8 +23,12 @@ program define irw_itemtext
 
 	tempfile csv
 	_irw_get, dataset("`ds'") table("`itbl'") file(`"`csv'"')
+	* maxquotedrows() is Stata 16 and later; under 15 bindquote(strict) already
+	* spans newlines, with no row cap to raise.
+	local qrows ""
+	if c(stata_version) >= 16 local qrows "maxquotedrows(200000)"
 	quietly import delimited using `"`csv'"', clear varnames(1) ///
-		bindquote(strict) maxquotedrows(200000) encoding(utf-8)
+		bindquote(strict) `qrows' encoding(utf-8)
 	capture drop _unnamed_var
 
 	char _dta[irw_table] "`tbl'"

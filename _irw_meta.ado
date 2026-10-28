@@ -1,4 +1,4 @@
-*! _irw_meta 0.1.0  26oct2026  Item Response Warehouse
+*! _irw_meta 0.1.1  28oct2026  Item Response Warehouse
 *! Make sure a cached copy of one irw_meta table exists and is fresh, and return
 *! its path. Downloads only when the cache is missing or older than maxage() days.
 *!
@@ -50,8 +50,12 @@ program define _irw_meta, rclass
 			exit 601
 		}
 		* biblio carries BibTeX with embedded newlines inside quoted fields.
+		* maxquotedrows() is Stata 16 and later; under 15 bindquote(strict) already
+		* spans newlines, with no row cap to raise.
+		local qrows ""
+		if c(stata_version) >= 16 local qrows "maxquotedrows(200000)"
 		quietly import delimited using `"`csv'"', clear varnames(1) ///
-			bindquote(strict) maxquotedrows(200000) encoding(utf-8)
+			bindquote(strict) `qrows' encoding(utf-8)
 		char _dta[irw_table] "`table'"
 		char _dta[irw_fetched] "`c(current_date)'"
 		quietly save `"`dta'"', replace

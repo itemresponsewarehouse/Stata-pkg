@@ -7,7 +7,7 @@ d endpoint -- no Redivis account and no SDK -- and bridges the long format
 d to the wide one that irt and gsem expect.
 d
 d Requires: Stata 15
-d Distribution-Date: 20261026
+d Distribution-Date: 20261028
 d
 d Author: Item Response Warehouse, Stanford University
 d Support: https://github.com/itemresponsewarehouse/Stata-pkg/issues

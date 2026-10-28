@@ -1,4 +1,4 @@
-*! irw_fetch 0.1.0  26oct2026  Item Response Warehouse
+*! irw_fetch 0.1.1  28oct2026  Item Response Warehouse
 *! Download one IRW table into memory, in the warehouse's long format.
 program define irw_fetch
 	version 15.0
@@ -54,8 +54,12 @@ program define irw_fetch
 			knownbytes(`nbytes')
 		local url `"`r(url)'"'
 
+		* maxquotedrows() is Stata 16 and later; under 15 bindquote(strict) already
+		* spans newlines, with no row cap to raise.
+		local qrows ""
+		if c(stata_version) >= 16 local qrows "maxquotedrows(200000)"
 		quietly import delimited using `"`csv'"', clear varnames(1) ///
-			bindquote(strict) maxquotedrows(200000) encoding(utf-8)
+			bindquote(strict) `qrows' encoding(utf-8)
 
 		_irw_clean
 
