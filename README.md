@@ -7,9 +7,12 @@ This is the third IRW client, alongside the
 [R package](https://itemresponsewarehouse.github.io/Rpkg/) and the
 [Python package](https://github.com/itemresponsewarehouse/Python-pkg).
 
-**Status: unreleased.** The code is written and the endpoint contracts it depends on are
-tested, but the ado files themselves have not yet been run under Stata. See
-[Testing](#testing).
+**Status: new, and tested on two Stata versions by one outside tester.** The documented
+example runs end to end on Stata 16.0 and StataNow 19.5 — fetch, reshape, a converged
+2PL — and `tests/unit.do` passes all 29 of its checks on both. Four bugs were found and
+fixed in the course of that. **Stata 15 is unconfirmed, and so is every platform other
+than macOS**; see [Testing](#testing) and
+[issue #2](https://github.com/itemresponsewarehouse/Stata-pkg/issues/2).
 
 ## Install
 
@@ -17,7 +20,14 @@ tested, but the ado files themselves have not yet been run under Stata. See
 net install irw, from("https://raw.githubusercontent.com/itemresponsewarehouse/Stata-pkg/main/")
 ```
 
-Stata 15 or newer. No other dependencies, and **no Redivis account**.
+No other dependencies, and **no Redivis account**.
+
+Every command declares `version 15.0`, so Stata 15 is the intended floor — but we are
+not yet sure it holds. A Stata 15 user hit a Stata 16-only option in `irw_info`, which
+is now guarded, and that fix has not been confirmed on 15. What has been run is 16.0 and
+19.5. If you are on 15 and something fails, please say so in
+[issue #2](https://github.com/itemresponsewarehouse/Stata-pkg/issues/2); we would rather
+support 15 than declare 16 the floor.
 
 ## Use
 
@@ -112,9 +122,14 @@ downloads about 2 MB:
 do tests/smoke.do
 ```
 
-Both need someone with a Stata licence.
+Both need someone with a Stata licence. `unit.do` has been run at the current commit on
+16.0 and 19.5; `smoke.do` was last run on both at `2493bac`, before the Stata 15 guard
+landed. Neither has been run on Stata 15 or off macOS.
 
-Please send back the whole `irw_smoke.log`, passes and failures both.
+Note that `net install` ships only the `.ado` and `.sthlp` files, not the tests. To run
+them, clone the repo or fetch the do-file and its fixture directly.
+
+Please send back the whole log, passes and failures both.
 
 ## Citation
 
