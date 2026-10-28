@@ -99,6 +99,11 @@ bug that was fatal on every table, and both would have shown up here immediately
 do tests/unit.do
 ```
 
+It reads one companion file, `tests/fixtures/backticks.json`, which has to be a file in
+the repo: the JSON it holds quotes column names in backticks, and Stata expands those
+while parsing a `file write` line, so writing the fixture from the do-file aborts before
+any of the package code is reached.
+
 `tests/smoke.do` runs the whole package against the live warehouse and asserts row and
 column counts at each step, including the error paths. It is self-contained and
 downloads about 2 MB:

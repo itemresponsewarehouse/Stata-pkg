@@ -11,6 +11,11 @@
 *! To run:  do tests/unit.do        (from a checkout)
 *!          do unit.do              (from inside tests/)
 *!
+*! Needs one companion file, tests/fixtures/backticks.json. net install does
+*! not ship the tests, so if you fetched this do-file on its own, fetch that
+*! one too and leave it beside this file or in a fixtures/ next to it:
+*!   https://raw.githubusercontent.com/itemresponsewarehouse/Stata-pkg/main/tests/fixtures/backticks.json
+*!
 *! Note on the ck calls: the condition is wrapped in `=(...)' so that Stata
 *! evaluates it to 0 or 1 BEFORE ck is called. Passing the bare expression does
 *! not work -- args splits on spaces and parentheses do not protect it, which
@@ -93,13 +98,30 @@ ck `=(`"`r(value)'"' == "not_found")' "a string key with a space after the colon
 * Backticks and quotes in the file must not be expanded as macro references.
 * irw_meta.tags really does carry a description that quotes column names in
 * backticks, and it aborted every command that read that table with r(198).
-file open `fh' using "`j4'", write text replace
-file write `fh' `"{"numRows":6497,"description":"tags for `age range` and `measurement tool`, see $PATH and 100% of tables","hash":"ab12"}"'
-file close `fh'
-_irw_json using "`j4'", key(numRows)
-ck `=(`"`r(value)'"' == "6497")' "a description full of backticks does not abort the read" `"`r(value)'"'
-_irw_json using "`j4'", key(hash) string
-ck `=(`"`r(value)'"' == "ab12")' "and a key after it still parses" `"`r(value)'"'
+*
+* This fixture is a file in the repo rather than written from here, because
+* Stata expands backticks in the line it is parsing: writing this JSON from a
+* do-file aborts with r(198) at the write itself, before _irw_json ever reads
+* the file. Reported by Mridul Joshi in Stata-pkg#1, against every Stata tried.
+local fixdir ""
+capture confirm file "tests/fixtures/backticks.json"
+if _rc == 0 local fixdir "tests/fixtures"
+if "`fixdir'" == "" {
+	capture confirm file "fixtures/backticks.json"
+	if _rc == 0 local fixdir "fixtures"
+}
+if "`fixdir'" == "" {
+	capture confirm file "backticks.json"
+	if _rc == 0 local fixdir "."
+}
+ck `=("`fixdir'" != "")' "the backticks fixture is on disk" "looked in tests/fixtures, fixtures and ."
+if "`fixdir'" != "" {
+	copy "`fixdir'/backticks.json" "`j4'", replace
+	_irw_json using "`j4'", key(numRows)
+	ck `=(`"`r(value)'"' == "6497")' "a description full of backticks does not abort the read" `"`r(value)'"'
+	_irw_json using "`j4'", key(hash) string
+	ck `=(`"`r(value)'"' == "ab12")' "and a key after it still parses" `"`r(value)'"'
+}
 
 *----------------------------------------------------------------------
 * 2. _irw_cachedir
